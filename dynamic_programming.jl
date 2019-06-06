@@ -1,4 +1,5 @@
 include("map2d.jl")
+include("utils.jl")
 
 function test()
   N = 30
