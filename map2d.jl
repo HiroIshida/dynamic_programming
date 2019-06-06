@@ -1,14 +1,16 @@
 using PyPlot
+
 struct Map2d
     N::Int64
     dx::Vector{Float64}
     b_min::Vector{Float64}
     b_max::Vector{Float64}
     idx_object_lst::Vector{Vector{Int64}}
+    idx_goal
 
-    function Map2d(N, b_min, b_max, idx_object_lst = [])
+    function Map2d(N, b_min, b_max, idx_object_lst = [], idx_goal = [1, 1])
         dx = (b_max - b_min)./N
-        new(N, dx, b_min, b_max, idx_object_lst)
+        new(N, dx, b_min, b_max, idx_object_lst, idx_goal)
     end
 end
 
@@ -29,6 +31,13 @@ end
   return idx_adj_lst
 end
 
+@inline function generate_valid_idx(map::Map2d)
+  idx_avoid_set = Set(vcat([map.idx_goal], map.idx_object_lst))
+  idx_base_set = Set([[i, j] for i in 1:map.N, j in 1:map.N])
+  idx_valid = setdiff(idx_base_set, idx_avoid_set)
+  return collect(idx_valid)
+end
+
 @inline function show_contour(map::Map2d, data)
   b_min = map.b_min
   b_max = map.b_max
@@ -38,7 +47,7 @@ end
             b_max[2] - 0.5*map.dx[2]]
   PyPlot.imshow(data,
                 extent = extent,
-                interpolation=:bicubic)
+                interpolation=:nearest)
   show()
   end
 

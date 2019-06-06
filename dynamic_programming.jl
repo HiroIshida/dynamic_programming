@@ -1,15 +1,16 @@
 include("map2d.jl")
 
 function test()
-  N = 100
-  map = Map2d(N, [0, 0], [10, 10])
-  idx_lst = [[i, j] for i in 2:N, j in 2:N]
+  N = 10
+  idx_collision_obj_lst = [[4, 4], [4, 5], [4, 6], [5, 6]]
+  map = Map2d(N, [0, 0], [10, 10], idx_collision_obj_lst)
+  idx_lst = generate_valid_idx(map)
   idx_goal = [1, 1]
 
   inf = 10000000000000
   delta = 0
   dist = 1.0
-  data = zeros(N, N)
+  data = zeros(N, N) 
   for iii in 1:100
     data_new = zeros(N, N)
 
