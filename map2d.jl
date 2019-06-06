@@ -11,30 +11,21 @@ struct Map2d
     end
 end
 
-@inline function get_adjacent_idx(map::Map2d, idx::Vector{Int64})
-  idx_list = []
+@inline function get_adjacent_idx(map::Map2d, idx_here::Vector{Int64})
+  idx_adj_lst = []
 
-  if idx[1] > 1
-    idx_left = idx + [-1, 0]
-    push!(idx_list, idx_left)
+  function push_if_not_collide(idx_new)
+    for idx_object in map.idx_object_lst
+      idx_new == idx_object && return
+    end
+    push!(idx_adj_lst, idx_new) 
   end
 
-  if idx[1] < map.N
-    idx_right = idx + [1, 0]
-    push!(idx_list, idx_right)
-  end
-
-  if idx[2] > 1
-    idx_down = idx + [0, -1]
-    push!(idx_list, idx_down)
-  end
-
-  if idx[2] < map.N
-    idx_up = idx + [0, 1]
-    push!(idx_list, idx_up)
-  end
-
-  return idx_list
+  idx_here[1] > 1 && push_if_not_collide(idx_here + [-1, 0])
+  idx_here[1] < map.N && push_if_not_collide(idx_here + [1, 0])
+  idx_here[2] > 1 && push_if_not_collide(idx_here + [0, -1])
+  idx_here[2] < map.N && push_if_not_collide(idx_here + [0, 1])
+  return idx_adj_lst
 end
 
 @inline function get_data(data, idx)
