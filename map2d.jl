@@ -6,12 +6,13 @@ mutable struct Map2d
     dx::Vector{Float64}
     b_min::Vector{Float64}
     b_max::Vector{Float64}
-    idx_object_lst::Vector{Vector{Int64}} # TODO must be a Set # TODO templatize
     idx_goal
+    costfield::Matrix{Float64}
 
-    function Map2d(N, b_min, b_max, idx_object_lst = [], idx_goal = [1, 1])
+    function Map2d(N, b_min, b_max, idx_goal = [1, 1])
         dx = (b_max - b_min)./N
-        new(N, dx, b_min, b_max, idx_object_lst, idx_goal)
+        costfield = zeros(N, N)
+        new(N, dx, b_min, b_max, idx_goal, costfield)
     end
 end
 
@@ -31,15 +32,15 @@ function generate_valid_idx(map::Map2d) # TODO
   return collect(idx_valid)
 end
 
-function add_rect_object!(map::Map2d, b_min, b_max)
+function add_rect_object!(map::Map2d, b_min, b_max, object_cost = 20)
   idx_base_lst = [[i, j] for i in 1:map.N, j in 1:map.N]
   # can be easily make this better, but .. TODO
-  idx_object_new_lst = []
   for idx_base in idx_base_lst
-    isInside_rect(b_min, b_max, idx_to_pos(map, idx_base)) && push!(idx_object_new_lst, idx_base)
+    if isInside_rect(b_min, b_max, idx_to_pos(map, idx_base))
+      set_data!(map.costfield, idx_base, object_cost)
+    end
   end
-  idx_object_set = union(Set(idx_object_new_lst), Set(map.idx_object_lst))
-  map.idx_object_lst = collect(idx_object_set)
+
 end
 
 function show_contour(map::Map2d, data)
@@ -53,6 +54,10 @@ function show_contour(map::Map2d, data)
                 extent = extent,
                 interpolation=:nearest)
   show()
+end
+
+@inline function get_cost(map::Map2d, idx)
+  return get_data(map.costfield, idx)
 end
 
 @inline function idx_to_pos(map::Map2d, idx)
