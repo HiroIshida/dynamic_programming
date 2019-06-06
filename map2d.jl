@@ -1,3 +1,4 @@
+using PyPlot
 struct Map2d
     N::Int64
     dx::Vector{Float64}
@@ -27,6 +28,19 @@ end
   idx_here[2] < map.N && push_if_not_collide(idx_here + [0, 1])
   return idx_adj_lst
 end
+
+@inline function show_contour(map::Map2d, data)
+  b_min = map.b_min
+  b_max = map.b_max
+  extent = [b_min[1] + 0.5*map.dx[1],
+            b_max[1] - 0.5*map.dx[1],
+            b_min[2] + 0.5*map.dx[2],
+            b_max[2] - 0.5*map.dx[2]]
+  PyPlot.imshow(data,
+                extent = extent,
+                interpolation=:bicubic)
+  show()
+  end
 
 @inline function get_data(data, idx)
   return data[idx[1], idx[2]]

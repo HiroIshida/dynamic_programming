@@ -10,7 +10,7 @@ function test()
   delta = 0
   dist = 1.0
   data = zeros(N, N)
-  for iii in 1:10
+  for iii in 1:100
     data_new = zeros(N, N)
 
     for idx_now in idx_lst
@@ -27,6 +27,7 @@ function test()
 
     data = data_new
   end
+  show_contour(map, data)
 
   return data
 end
