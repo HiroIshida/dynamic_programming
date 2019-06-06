@@ -2,7 +2,7 @@ include("map2d.jl")
 include("utils.jl")
 
 function test()
-  N = 30
+  N = 10
   idx_collision_obj_lst = [[4, 4], [4, 5], [4, 6], [5, 6]]
   map = Map2d(N, [0, 0], [10, 10])
   add_rect_object!(map, [3, -1], [4, 8])
@@ -21,7 +21,7 @@ function test()
       idx_adj_lst = get_adjacent_idx(map, idx_now)
       cost_min = inf
       for idx_adj in idx_adj_lst 
-        cost = get_data(data, idx_adj) + dist
+        cost = get_data(data, idx_adj) + get_cost(map, idx_adj) + get_cost(map, idx_now) + dist
         cost_min = min(cost_min, cost)
       end
       set_data!(data_new, idx_now, cost_min)
@@ -34,3 +34,4 @@ function test()
   return map, data
 end
 map_, data = test()
+
