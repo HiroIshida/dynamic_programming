@@ -16,12 +16,14 @@ mutable struct Map2d
     end
 end
 
-@inline function get_adjacent_idx(map::Map2d, idx_here::Vector{Int64})
+@inline function get_adjacent_idx(map::Map2d, idx_here::Vector{Int64}, width=3)
+  width < 3 && error("width must larger than 3")# also must be odd
+  r = trunc(Int, (width - 1)/2)
+  idx_adj_cand_lst = [idx_here + [i, j] for i in -r:r, j in -r:r]
   idx_adj_lst = []
-  idx_here[1] > 1 && push!(idx_adj_lst, idx_here + [-1, 0])
-  idx_here[1] < map.N && push!(idx_adj_lst, idx_here + [1, 0])
-  idx_here[2] > 1 && push!(idx_adj_lst, idx_here + [0, -1])
-  idx_here[2] < map.N && push!(idx_adj_lst, idx_here + [0, 1])
+  for idx_adj_cand in idx_adj_cand_lst 
+    isInside_rect([1, 1], [map.N, map.N], idx_adj_cand) && push!(idx_adj_lst, idx_adj_cand)
+  end
   return idx_adj_lst
 end
 
