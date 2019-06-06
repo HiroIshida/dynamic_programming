@@ -17,23 +17,15 @@ end
 
 @inline function get_adjacent_idx(map::Map2d, idx_here::Vector{Int64})
   idx_adj_lst = []
-
-  function push_if_not_collide(idx_new)
-    for idx_object in map.idx_object_lst
-      idx_new == idx_object && return
-    end
-    push!(idx_adj_lst, idx_new) 
-  end
-
-  idx_here[1] > 1 && push_if_not_collide(idx_here + [-1, 0])
-  idx_here[1] < map.N && push_if_not_collide(idx_here + [1, 0])
-  idx_here[2] > 1 && push_if_not_collide(idx_here + [0, -1])
-  idx_here[2] < map.N && push_if_not_collide(idx_here + [0, 1])
+  idx_here[1] > 1 && push!(idx_adj_lst, idx_here + [-1, 0])
+  idx_here[1] < map.N && push!(idx_adj_lst, idx_here + [1, 0])
+  idx_here[2] > 1 && push!(idx_adj_lst, idx_here + [0, -1])
+  idx_here[2] < map.N && push!(idx_adj_lst, idx_here + [0, 1])
   return idx_adj_lst
 end
 
-function generate_valid_idx(map::Map2d)
-  idx_avoid_set = Set(vcat([map.idx_goal], map.idx_object_lst))
+function generate_valid_idx(map::Map2d) # TODO 
+  idx_avoid_set = Set([map.idx_goal])
   idx_base_set = Set([[i, j] for i in 1:map.N, j in 1:map.N])
   idx_valid = setdiff(idx_base_set, idx_avoid_set)
   return collect(idx_valid)
