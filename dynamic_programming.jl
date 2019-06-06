@@ -3,7 +3,8 @@ include("map2d.jl")
 function test()
   N = 10
   idx_collision_obj_lst = [[4, 4], [4, 5], [4, 6], [5, 6]]
-  map = Map2d(N, [0, 0], [10, 10], idx_collision_obj_lst)
+  map = Map2d(N, [0, 0], [10, 10])
+  add_rect_object!(map, [3, -1], [4, 8])
   idx_lst = generate_valid_idx(map)
   idx_goal = [1, 1]
 
@@ -29,6 +30,7 @@ function test()
     data = data_new
   end
   show_contour(map, data)
+  return(idx_to_pos(map, [2, 2]))
 
   return data
 end
