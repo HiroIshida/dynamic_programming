@@ -43,7 +43,7 @@ function add_rect_object!(map::Map2d, b_min, b_max)
   # can be easily make this better, but .. TODO
   idx_object_new_lst = []
   for idx_base in idx_base_lst
-    isInside_rect(b_min, b_max, idx_base) && push!(idx_object_new_lst, idx_base)
+    isInside_rect(b_min, b_max, idx_to_pos(map, idx_base)) && push!(idx_object_new_lst, idx_base)
   end
   idx_object_set = union(Set(idx_object_new_lst), Set(map.idx_object_lst))
   map.idx_object_lst = collect(idx_object_set)
