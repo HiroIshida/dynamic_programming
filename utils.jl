@@ -1,3 +1,5 @@
+const Idxlst = Vector{Vector{Int64}}
+const Idx = Vector{Int64}
 
 @inline function isInside_rect(b_min, b_max, pos)
   for i in 1:2

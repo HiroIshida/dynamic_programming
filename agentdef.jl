@@ -1,6 +1,8 @@
+include("utils.jl")
+
 struct AgentDef
-  A_lst # possible action 
-  D_lst # possible disturbance
+  A_lst::Idxlst # possible action 
+  D_lst::Idxlst # possible disturbance
 
   function AgentDef(action_lst::Vector{Vector{Int64}}, 
                     disturbance_lst::Vector{Vector{Int64}})
@@ -34,7 +36,7 @@ function get_disturbance_lst(idx_here, adef::AgentDef, map)
 end
 
 function push_if_valid(idx_here, idx_add_lst, map)
-  idx_ret_lst = []
+  idx_ret_lst = Idx[]
   for idx_add in idx_add_lst 
     isInside_map = isInside_rect([1, 1], [map.N, map.N], idx_here + idx_add)
     isInside_map && push!(idx_ret_lst, idx_add)
