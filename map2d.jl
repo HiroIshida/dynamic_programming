@@ -18,7 +18,7 @@ end
 
 @inline function get_adjacent_idx(map::Map2d, idx_here::Vector{Int64}, width=3)
   r = trunc(Int, (width - 1)/2)
-  idx_adj_cand_lst = [idx_here + [i, j] for i in -r:r, j in -r:r]
+  idx_adj_cand_lst = propagate(idx_here, generate_idx_lst(-r, r, -r, r))
   idx_adj_lst = []
   for idx_adj_cand in idx_adj_cand_lst 
     isInside_rect([1, 1], [map.N, map.N], idx_adj_cand) && push!(idx_adj_lst, idx_adj_cand)
@@ -28,13 +28,13 @@ end
 
 function generate_valid_idx(map::Map2d) # TODO 
   idx_avoid_set = Set([map.idx_goal])
-  idx_base_set = Set([[i, j] for i in 1:map.N, j in 1:map.N])
+  idx_base_set = Set(generate_idx_lst(1, map.N, 1, map.N))
   idx_valid = setdiff(idx_base_set, idx_avoid_set)
   return collect(idx_valid)
 end
 
 function add_rect_object!(map::Map2d, b_min, b_max, object_cost = 20)
-  idx_base_lst = [[i, j] for i in 1:map.N, j in 1:map.N]
+  idx_base_lst = generate_idx_lst(1, map.N, 1, map.N)
   # can be easily make this better, but .. TODO
   for idx_base in idx_base_lst
     if isInside_rect(b_min, b_max, idx_to_pos(map, idx_base))
