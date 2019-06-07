@@ -16,8 +16,8 @@ struct AgentDef
     end
     a_w_half = trunc(Int, (a_width - 1)/2)
     d_w_half = trunc(Int, (d_width - 1)/2)
-    A_lst = [[i, j] for i in -a_w_half : a_w_half, j in -a_w_half : a_w_half]
-    D_lst = [[i, j] for i in -d_width : d_width, j in -d_width : d_width]
+    A_lst = generate_idx_lst(-a_w_half, a_w_half, -a_w_half, a_w_half)
+    D_lst = generate_idx_lst(-d_w_half, d_w_half, -d_w_half, d_w_half)
     println(typeof(A_lst))
     new(A_lst, D_lst)
   end

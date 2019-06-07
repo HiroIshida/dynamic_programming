@@ -26,3 +26,13 @@ end
   end
   return idx_new_lst
 end
+
+@inline function generate_idx_lst(i_min, i_max, j_min, j_max)
+  idx_lst_ret = Vector{Int64}[]
+  for i in i_min : i_max
+    for j in j_min : j_max
+      push!(idx_lst_ret, [i, j])
+    end
+  end
+  return idx_lst_ret
+end
