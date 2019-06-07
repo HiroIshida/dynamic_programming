@@ -15,3 +15,14 @@ end
   data[idx[1], idx[2]] = value
 end
 
+@inline function propagate(idx_here::Vector{Int64}, idx_add::Vector{Int64})
+  return idx_here .+ idx_add
+end
+
+@inline function propagate(idx_here::Vector{Int64}, idx_add_lst::Vector{Vector{Int64}})
+  idx_new_lst = []
+  for idx_add in idx_add_lst
+    push!(idx_new_lst, propagate(idx_here, idx_add))
+  end
+  return idx_new_lst
+end
