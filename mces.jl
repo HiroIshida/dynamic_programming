@@ -5,13 +5,13 @@ using Statistics
 using Test
 
 mutable struct MonteCarlo
-  map
-  adef
-  Q_ht 
-  Returns_ht
-  isVisited_ht
-  policy_ht
-  t_max_horizon 
+  map::Map2d
+  adef::AgentDef
+  Q_ht::Dict{Tuple{Idx, Idx}, Float64}
+  Returns_ht::Dict{Tuple{Idx, Idx}, Vector{Float64}}
+  isVisited_ht::Dict{Tuple{Idx, Idx}, Bool}
+  policy_ht::Dict{Idx, Idx}
+  t_max_horizon::Int64
 
   function MonteCarlo(map::Map2d, adef::AgentDef)
     t_max_horizon = 100
@@ -42,12 +42,12 @@ mutable struct MonteCarlo
   end
 end
 
-function single_episode(mc::MonteCarlo, state0, action0)
+function single_episode(mc::MonteCarlo, state0::Idx, action0::Idx)
   isVisited_ht = copy(mc.isVisited_ht) # all element was set to false
 
   state = state0
   action = action0
-  state_visited_lst = []
+  state_visited_lst = Idx[]
 
   for t in 1:mc.t_max_horizon
     push!(state_visited_lst, state)
@@ -84,25 +84,25 @@ function single_episode(mc::MonteCarlo, state0, action0)
   
 end
 
-function get_hashed_data(hashtable::Dict, state::Idx, action::Idx)
+@inline function get_hashed_data(hashtable::Dict, state::Idx, action::Idx)
   key = (state, action)
   data = hashtable[key]
   return data
 end
-function set_hashed_data!(hashtable::Dict, state::Idx, action::Idx, data::Any)
+@inline function set_hashed_data!(hashtable::Dict, state::Idx, action::Idx, data::Any)
   key = (state, action)
   hashtable[key] = data
 end
-function push_hashed_data!(hashtable::Dict, state::Idx, action::Idx, data::Any)
+@inline function push_hashed_data!(hashtable::Dict, state::Idx, action::Idx, data::Any)
   key = (state, action)
   push!(hashtable[key], data)
 end
-function get_hashed_data(hashtable::Dict, state::Idx)
+@inline function get_hashed_data(hashtable::Dict, state::Idx)
   key = state
   data = hashtable[key]
   return data
 end
-function set_hashed_data!(hashtable::Dict, state::Idx, data::Any)
+@inline function set_hashed_data!(hashtable::Dict, state::Idx, data::Any)
   key = state
   hashtable[key] = data
 end
