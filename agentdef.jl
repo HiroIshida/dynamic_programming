@@ -20,7 +20,6 @@ struct AgentDef
     d_w_half = trunc(Int, (d_width - 1)/2)
     A_lst = generate_idx_lst(-a_w_half, a_w_half, -a_w_half, a_w_half)
     D_lst = generate_idx_lst(-d_w_half, d_w_half, -d_w_half, d_w_half)
-    println(typeof(A_lst))
     new(A_lst, D_lst)
   end
 end

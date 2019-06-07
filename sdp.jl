@@ -20,10 +20,11 @@ function test()
 
     for idx_now in idx_lst
       cost_current = get_data(data, idx_now)
-      idx_action_lst = propagate(idx_now, get_action_lst(idx_now, adef, map))
+      action_lst = get_action_lst(idx_now, adef, map)
+      idx_new_lst = propagate(idx_now, action_lst)
       cost_min = inf
-      for idx_action in idx_action_lst 
-        cost = calculate_prob_cost(idx_action, adef, map, data)
+      for idx_new in idx_new_lst 
+        cost = calculate_prob_cost(idx_new, adef, map, data)
         cost_min = min(cost_min, cost)
       end
       set_data!(data_new, idx_now, cost_min)
@@ -46,8 +47,8 @@ function calculate_prob_cost(idx_now, adef, map, data)
 
   cost_sum = 0
 
-  for idx_possible in idx_new_lst
-    cost_sum += (get_data(data, idx_possible) + get_cost(map, idx_possible)) * prob_each 
+  for idx_new in idx_new_lst
+    cost_sum += (get_data(data, idx_new) + get_cost(map, idx_new)) * prob_each 
   end
   cost_sum += dist
 
