@@ -1,13 +1,14 @@
 include("map2d.jl")
 include("agentdef.jl")
 include("utils.jl")
+using Statistics
 using Test
 
 mutable struct MonteCarlo
   map
   adef
   Q_ht 
-  G_ht
+  Returns_ht
   isVisited_ht
   policy_ht
   t_max_horizon 
@@ -16,7 +17,7 @@ mutable struct MonteCarlo
     t_max_horizon = 100
 
     Q_hashtable_lst = []
-    G_hashtable_lst = []
+    Returns_hashtable_lst = []
     isVisited_hashtable_lst = []
     policy_hashtable_lst = []
     state_lst = generate_idx_lst(1, map.N, 1, map.N)
@@ -26,7 +27,7 @@ mutable struct MonteCarlo
       for action in action_lst
         key_sa = (state, action)
         push!(Q_hashtable_lst, (key_sa, 0.0))
-        push!(G_hashtable_lst, (key_sa, nothing))
+        push!(Returns_hashtable_lst, (key_sa, []))
         push!(isVisited_hashtable_lst, (key_sa, false))
       end
       key_s = state
@@ -34,27 +35,53 @@ mutable struct MonteCarlo
     end
     d_type_key = Tuple{Idx, Idx}
     Q_ht = Dict{d_type_key, Float64}(Q_hashtable_lst)
-    G_ht = Dict{d_type_key, Union{Nothing, Float64}}(G_hashtable_lst)
+    Returns_ht = Dict{d_type_key, Vector{Float64}}(Returns_hashtable_lst)
     isVisited_ht = Dict{d_type_key, Bool}(isVisited_hashtable_lst)
     policy_ht = Dict{Idx, Idx}(policy_hashtable_lst)
-    new(map, adef, Q_ht, G_ht, isVisited_ht, policy_ht, t_max_horizon)
+    new(map, adef, Q_ht, Returns_ht, isVisited_ht, policy_ht, t_max_horizon)
   end
 end
 
 function single_episode(mc::MonteCarlo, state0, action0)
-
-  isVisited_ht = copy(mc.isVisited_ht)
+  isVisited_ht = copy(mc.isVisited_ht) # all element was set to false
 
   state = state0
   action = action0
+  state_visited_lst = []
+
   for t in 1:mc.t_max_horizon
-    println(t)
-    state = propagate(state, action)
+    push!(state_visited_lst, state)
+    state_next = propagate(state, action)
+    isVisited = get_hashed_data(isVisited_ht, state, action)
+    if ~isVisited
+      # # #
+      g = get_hashed_data(mc.Q_ht, state, action) + get_cost(state, state_next, mc.map)
+      push_hashed_data!(mc.Returns_ht, state, action, g)
+      Returns = get_hashed_data(mc.Returns_ht, state, action)
+      set_hashed_data!(mc.Q_ht, state, action, mean(Returns))
+      # # #
+      set_hashed_data!(isVisited_ht, state, action, true)
+    end
+    state = state_next
     action = get_hashed_data(mc.policy_ht, state)
     if state == mc.map.idx_goal
       return
     end
   end
+
+  for state in state_visited_lst
+    Q_min = Inf
+    action_best = nothing
+    for action in get_action_lst(state, mc.adef, mc.map)
+      Q = get_hashed_data(mc.Q_ht, state, action)
+      if Q < Q_min
+        Q_min = Q
+        action_best = action
+      end
+    end
+    set_hashed_data!(mc.policy_ht, state, action)
+  end
+  
 end
 
 function get_hashed_data(hashtable::Dict, state::Idx, action::Idx)
@@ -62,19 +89,20 @@ function get_hashed_data(hashtable::Dict, state::Idx, action::Idx)
   data = hashtable[key]
   return data
 end
-
+function set_hashed_data!(hashtable::Dict, state::Idx, action::Idx, data::Any)
+  key = (state, action)
+  hashtable[key] = data
+end
+function push_hashed_data!(hashtable::Dict, state::Idx, action::Idx, data::Any)
+  key = (state, action)
+  push!(hashtable[key], data)
+end
 function get_hashed_data(hashtable::Dict, state::Idx)
   key = state
   data = hashtable[key]
   return data
 end
-
-function set_hashed_data!(hashtable::Dict, state::Idx, action::Idx, data::Number)
-  key = (state, action)
-  hashtable[key] = data
-end
-
-function set_hashed_data!(hashtable::Dict, state::Idx, data::Number)
+function set_hashed_data!(hashtable::Dict, state::Idx, data::Any)
   key = state
   hashtable[key] = data
 end
@@ -83,7 +111,9 @@ function mc_trial(mc::MonteCarlo)
   state0 = [6, 10]
   action_lst = get_action_lst(state0, mc.adef, mc.map)
   action0 = action_lst[1] 
-  single_episode(mc, state0, action0)
+  for i in 1:30*30*9
+    single_episode(mc, state0, action0)
+  end
 end
 
 N = 30
@@ -92,7 +122,7 @@ adef = AgentDef(3, 3)
 map = Map2d(N, [0, 0], [10, 10])
 add_rect_object!(map, [3, -1], [4, 8])
 mc = MonteCarlo(map, adef)
-mc_trial(mc)
+@time mc_trial(mc)
 
 
 

@@ -44,6 +44,12 @@ function add_rect_object!(map::Map2d, b_min, b_max, object_cost = 20)
 
 end
 
+function get_cost(idx_now, idx_new, map::Map2d)
+  cost_to_go = sqrt(sum((idx_now .- idx_new).^2))
+  state_cost = get_data(map.costfield, idx_new)
+  return cost_to_go + state_cost
+end
+
 function show_contour(map::Map2d, data)
   b_min = map.b_min
   b_max = map.b_max
@@ -58,6 +64,7 @@ function show_contour(map::Map2d, data)
 end
 
 @inline function get_cost(map::Map2d, idx)
+  error("must fix")
   return get_data(map.costfield, idx)
 end
 
