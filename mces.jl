@@ -84,28 +84,6 @@ function single_episode(mc::MonteCarlo, state0::Idx, action0::Idx)
   
 end
 
-@inline function get_hashed_data(hashtable::Dict, state::Idx, action::Idx)
-  key = (state, action)
-  data = hashtable[key]
-  return data
-end
-@inline function set_hashed_data!(hashtable::Dict, state::Idx, action::Idx, data::Any)
-  key = (state, action)
-  hashtable[key] = data
-end
-@inline function push_hashed_data!(hashtable::Dict, state::Idx, action::Idx, data::Any)
-  key = (state, action)
-  push!(hashtable[key], data)
-end
-@inline function get_hashed_data(hashtable::Dict, state::Idx)
-  key = state
-  data = hashtable[key]
-  return data
-end
-@inline function set_hashed_data!(hashtable::Dict, state::Idx, data::Any)
-  key = state
-  hashtable[key] = data
-end
 
 function mc_trial(mc::MonteCarlo)
   state0 = [6, 10]

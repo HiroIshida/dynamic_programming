@@ -17,6 +17,34 @@ end
   data[idx[1], idx[2]] = value
 end
 
+@inline function get_hashed_data(hashtable::Dict, state::Idx, action::Idx)
+  @warn "deprecated"
+  key = (state, action)
+  data = hashtable[key]
+  return data
+end
+@inline function set_hashed_data!(hashtable::Dict, state::Idx, action::Idx, data::Any)
+  @warn "deprecated"
+  key = (state, action)
+  hashtable[key] = data
+end
+@inline function push_hashed_data!(hashtable::Dict, state::Idx, action::Idx, data::Any)
+  @warn "deprecated"
+  key = (state, action)
+  push!(hashtable[key], data)
+end
+@inline function get_hashed_data(hashtable::Dict, state::Idx)
+  @warn "deprecated"
+  key = state
+  data = hashtable[key]
+  return data
+end
+@inline function set_hashed_data!(hashtable::Dict, state::Idx, data::Any)
+  @warn "deprecated"
+  key = state
+  hashtable[key] = data
+end
+
 @inline function propagate(idx_here::Vector{Int64}, idx_add::Vector{Int64})
   return idx_here .+ idx_add
 end
