@@ -27,6 +27,7 @@ end
 end
 
 function generate_valid_idx(map::Map2d) # TODO 
+  # TODO name must be changed
   idx_avoid_set = Set([map.idx_goal])
   idx_base_set = Set(generate_idx_lst(1, map.N, 1, map.N))
   idx_valid = setdiff(idx_base_set, idx_avoid_set)

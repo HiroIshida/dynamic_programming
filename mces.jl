@@ -1,6 +1,7 @@
 include("map2d.jl")
 include("agentdef.jl")
 include("utils.jl")
+include("cost_function.jl")
 using Statistics
 using Test
 using LinearAlgebra
@@ -54,20 +55,23 @@ function single_episode(mc::MonteCarlo, state0::Idx, action0::Idx)
     push!(state_visited_lst, state)
     state_next = propagate(state, action)
     if ~isVisited_ht[(state, action)]
-      # # #
       addcost = get_addcost(map, state)
       dist = norm(state .- state_next)
       g = mc.Q_ht[(state, action)] + dist + addcost
       push!(mc.Returns_ht[(state, action)], g)
       Returns = mc.Returns_ht[(state, action)]
       mc.Q_ht[(state, action)] = mean(Returns)
-      # # #
+      #=
+      if state == [5, 5] && action == [1, 0]
+        println(mean(Returns))
+      end
+      =#
       isVisited_ht[(state, action)] = true
     end
     state = state_next
     action = mc.policy_ht[state]
     if state == mc.map.idx_goal
-      return
+      break
     end
   end
 
@@ -88,21 +92,29 @@ end
 
 
 function mc_trial(mc::MonteCarlo)
-  state0 = [6, 10]
-  action_lst = get_action_lst(state0, mc.adef, mc.map)
-  action0 = action_lst[1] 
-  for i in 1:30*30*9
+  state_lst = generate_valid_idx(mc.map)
+  N = mc.map.N
+  for i in 1:N*10
+    state0 = state_lst[rand(1:length(state_lst))]
+    action_lst = get_action_lst(state0, mc.adef, mc.map)
+    action0 = action_lst[rand(1:length(action_lst))]
     single_episode(mc, state0, action0)
+    #println(mc.Q_ht[([3, 3], [0, 0])])
   end
 end
 
-N = 30
+N = 15
 idx_collision_obj_lst = [[4, 4], [4, 5], [4, 6], [5, 6]]
 adef = AgentDef(3, 3)
 map = Map2d(N, [0, 0], [10, 10])
 add_rect_object!(map, [3, -1], [4, 8])
 mc = MonteCarlo(map, adef)
 @time mc_trial(mc)
+cost_ht = make_cost_field(map, adef, mc.policy_ht)
+show_contour(map, cost_ht)
+
+
+
 
 
 

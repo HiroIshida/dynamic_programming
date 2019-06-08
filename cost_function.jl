@@ -17,7 +17,7 @@ function make_cost_field(map::Map2d, adef::AgentDef, policy_ht = nothing)
     cost_ht_new = copy(cost_ht)
     for s in s_valid_lst
       if usingPolicy
-        cost_new = update_cost_with_policy(s, policy_ht, adef, map. cost_ht)
+        cost_new = update_cost_with_policy(s, policy_ht, adef, map, cost_ht)
       else
         cost_new = update_cost_without_policy(s, adef, map, cost_ht)
       end
