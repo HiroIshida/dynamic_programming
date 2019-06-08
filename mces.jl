@@ -53,7 +53,10 @@ function single_episode(mc::MonteCarlo, state0::Idx, action0::Idx)
 
   for t in 1:mc.t_max_horizon
     push!(state_visited_lst, state)
-    state_next = propagate(state, action)
+    disturbance_lst = get_disturbance_lst(state .+ action, mc.adef, mc.map)
+    disturbance = disturbance_lst[rand(1:length(disturbance_lst))]
+    state_next = state .+ action .+ disturbance
+
     if ~isVisited_ht[(state, action)]
       addcost = get_addcost(map, state)
       dist = norm(state .- state_next)
@@ -61,11 +64,6 @@ function single_episode(mc::MonteCarlo, state0::Idx, action0::Idx)
       push!(mc.Returns_ht[(state, action)], g)
       Returns = mc.Returns_ht[(state, action)]
       mc.Q_ht[(state, action)] = mean(Returns)
-      #=
-      if state == [5, 5] && action == [1, 0]
-        println(mean(Returns))
-      end
-      =#
       isVisited_ht[(state, action)] = true
     end
     state = state_next
@@ -85,16 +83,22 @@ function single_episode(mc::MonteCarlo, state0::Idx, action0::Idx)
         action_best = action
       end
     end
-    mc.policy_ht[state] = action
+    # check_policy(mc, state, action) # TODO be aware of scope of for loop ..
+    mc.policy_ht[state] = action_best 
   end
   
 end
 
+function check_policy(mc, state, action_new)
+  if action_new ∉ get_action_lst(state, mc.adef, mc.map)
+    error("fuck")
+  end
+end
 
 function mc_trial(mc::MonteCarlo)
   state_lst = generate_valid_idx(mc.map)
   N = mc.map.N
-  for i in 1:N*10
+  for i in 1:N*N*100
     state0 = state_lst[rand(1:length(state_lst))]
     action_lst = get_action_lst(state0, mc.adef, mc.map)
     action0 = action_lst[rand(1:length(action_lst))]
@@ -103,11 +107,12 @@ function mc_trial(mc::MonteCarlo)
   end
 end
 
-N = 15
+
+N = 6
 idx_collision_obj_lst = [[4, 4], [4, 5], [4, 6], [5, 6]]
 adef = AgentDef(3, 3)
 map = Map2d(N, [0, 0], [10, 10])
-add_rect_object!(map, [3, -1], [4, 8])
+#add_rect_object!(map, [3, -1], [4, 8])
 mc = MonteCarlo(map, adef)
 @time mc_trial(mc)
 cost_ht = make_cost_field(map, adef, mc.policy_ht)
