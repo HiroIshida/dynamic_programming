@@ -7,12 +7,12 @@ mutable struct Map2d
     b_min::Vector{Float64}
     b_max::Vector{Float64}
     idx_goal
-    costfield::Matrix{Float64}
+    addcostfield::Matrix{Float64}
 
     function Map2d(N, b_min, b_max, idx_goal = [1, 1])
         dx = (b_max - b_min)./N
-        costfield = zeros(N, N)
-        new(N, dx, b_min, b_max, idx_goal, costfield)
+        addcostfield = zeros(N, N)
+        new(N, dx, b_min, b_max, idx_goal, addcostfield)
     end
 end
 
@@ -39,7 +39,7 @@ function add_rect_object!(map::Map2d, b_min, b_max, object_cost = 20)
   # can be easily make this better, but .. TODO
   for idx_base in idx_base_lst
     if isInside_rect(b_min, b_max, idx_to_pos(map, idx_base))
-      set_data!(map.costfield, idx_base, object_cost)
+      set_data!(map.addcostfield, idx_base, object_cost)
     end
   end
 
@@ -48,7 +48,7 @@ end
 function get_cost(idx_now, idx_new, map::Map2d)
   @warn "deprecated"
   cost_to_go = sqrt(sum((idx_now .- idx_new).^2))
-  state_cost = get_data(map.costfield, idx_new)
+  state_cost = get_data(map.addcostfield, idx_new)
   return cost_to_go + state_cost
 end
 
@@ -74,9 +74,9 @@ function show_contour(map::Map2d, data::Matrix)
   show()
 end
 
-@inline function get_cost(map::Map2d, idx)
+@inline function get_addcost(map::Map2d, idx)
   #@warn "depricated"
-  return get_data(map.costfield, idx)
+  return get_data(map.addcostfield, idx)
 end
 
 @inline function idx_to_pos(map::Map2d, idx)

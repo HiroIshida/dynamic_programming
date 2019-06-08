@@ -3,6 +3,7 @@ include("agentdef.jl")
 include("utils.jl")
 using Statistics
 using Test
+using LinearAlgebra
 
 mutable struct MonteCarlo
   map::Map2d
@@ -55,7 +56,9 @@ function single_episode(mc::MonteCarlo, state0::Idx, action0::Idx)
     isVisited = get_hashed_data(isVisited_ht, state, action)
     if ~isVisited
       # # #
-      g = get_hashed_data(mc.Q_ht, state, action) + get_cost(state, state_next, mc.map)
+      addcost = get_addcost(map, state)
+      dist = norm(state .- state_next)
+      g = get_hashed_data(mc.Q_ht, state, action) + dist + addcost
       push_hashed_data!(mc.Returns_ht, state, action, g)
       Returns = get_hashed_data(mc.Returns_ht, state, action)
       set_hashed_data!(mc.Q_ht, state, action, mean(Returns))
