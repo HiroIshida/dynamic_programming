@@ -27,7 +27,6 @@ end
 end
 
 function generate_valid_idx(map::Map2d) # TODO 
-  #@warn "depricated"
   idx_avoid_set = Set([map.idx_goal])
   idx_base_set = Set(generate_idx_lst(1, map.N, 1, map.N))
   idx_valid = setdiff(idx_base_set, idx_avoid_set)
@@ -43,13 +42,6 @@ function add_rect_object!(map::Map2d, b_min, b_max, object_cost = 20)
     end
   end
 
-end
-
-function get_cost(idx_now, idx_new, map::Map2d)
-  @warn "deprecated"
-  cost_to_go = sqrt(sum((idx_now .- idx_new).^2))
-  state_cost = get_data(map.addcostfield, idx_new)
-  return cost_to_go + state_cost
 end
 
 function show_contour(map::Map2d, data_ht::Dict)
@@ -75,7 +67,6 @@ function show_contour(map::Map2d, data::Matrix)
 end
 
 @inline function get_addcost(map::Map2d, idx)
-  #@warn "depricated"
   return get_data(map.addcostfield, idx)
 end
 
