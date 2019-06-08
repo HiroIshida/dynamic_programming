@@ -52,7 +52,7 @@ function calculate_cost_expectancy(state_now, action, adef, map, cost_ht)
   for disturb in disturbance_lst
     state_possible = propagate(state_planned, disturb)
     dist = norm(state_possible .- state_now)
-    cost_sum += (cost_ht[state_possible] + dist + get_cost(map, state_possible))*prob_each
+    cost_sum += (cost_ht[state_possible] + dist + get_addcost(map, state_possible))*prob_each
   end
   return cost_sum
 end

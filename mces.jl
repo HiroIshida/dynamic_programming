@@ -3,6 +3,7 @@ include("agentdef.jl")
 include("utils.jl")
 using Statistics
 using Test
+using LinearAlgebra
 
 mutable struct MonteCarlo
   map::Map2d
@@ -52,18 +53,19 @@ function single_episode(mc::MonteCarlo, state0::Idx, action0::Idx)
   for t in 1:mc.t_max_horizon
     push!(state_visited_lst, state)
     state_next = propagate(state, action)
-    isVisited = get_hashed_data(isVisited_ht, state, action)
-    if ~isVisited
+    if ~isVisited_ht[(state, action)]
       # # #
-      g = get_hashed_data(mc.Q_ht, state, action) + get_cost(state, state_next, mc.map)
-      push_hashed_data!(mc.Returns_ht, state, action, g)
-      Returns = get_hashed_data(mc.Returns_ht, state, action)
-      set_hashed_data!(mc.Q_ht, state, action, mean(Returns))
+      addcost = get_addcost(map, state)
+      dist = norm(state .- state_next)
+      g = mc.Q_ht[(state, action)] + dist + addcost
+      push!(mc.Returns_ht[(state, action)], g)
+      Returns = mc.Returns_ht[(state, action)]
+      mc.Q_ht[(state, action)] = mean(Returns)
       # # #
-      set_hashed_data!(isVisited_ht, state, action, true)
+      isVisited_ht[(state, action)] = true
     end
     state = state_next
-    action = get_hashed_data(mc.policy_ht, state)
+    action = mc.policy_ht[state]
     if state == mc.map.idx_goal
       return
     end
@@ -73,13 +75,13 @@ function single_episode(mc::MonteCarlo, state0::Idx, action0::Idx)
     Q_min = Inf
     action_best = nothing
     for action in get_action_lst(state, mc.adef, mc.map)
-      Q = get_hashed_data(mc.Q_ht, state, action)
+      Q = mc.Q_ht[(state, action)]
       if Q < Q_min
         Q_min = Q
         action_best = action
       end
     end
-    set_hashed_data!(mc.policy_ht, state, action)
+    mc.policy_ht[state] = action
   end
   
 end
