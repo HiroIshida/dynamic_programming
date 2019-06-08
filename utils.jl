@@ -38,3 +38,7 @@ end
   end
   return idx_lst_ret
 end
+
+function remove_elem_from_lst(lst, elem)
+  return filter(e->e!=elem, lst)
+end

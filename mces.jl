@@ -98,7 +98,7 @@ end
 function mc_trial(mc::MonteCarlo)
   state_lst = generate_valid_idx(mc.map)
   N = mc.map.N
-  for i in 1:N*N*100
+  for i in 1:N*N*10
     state0 = state_lst[rand(1:length(state_lst))]
     action_lst = get_action_lst(state0, mc.adef, mc.map)
     action0 = action_lst[rand(1:length(action_lst))]
@@ -108,9 +108,9 @@ function mc_trial(mc::MonteCarlo)
 end
 
 
-N = 6
+N = 10
 idx_collision_obj_lst = [[4, 4], [4, 5], [4, 6], [5, 6]]
-adef = AgentDef(3, 3)
+adef = AgentDef(1, 0)
 map = Map2d(N, [0, 0], [10, 10])
 #add_rect_object!(map, [3, -1], [4, 8])
 mc = MonteCarlo(map, adef)

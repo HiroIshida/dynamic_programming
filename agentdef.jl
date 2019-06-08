@@ -11,17 +11,20 @@ struct AgentDef
     new(A_lst, D_lst)
   end
 
-  function AgentDef(a_width::Int64, d_width::Int64)
-    if ~(isodd(a_width) && isodd(d_width))
-       error("width must be odd number")
+  function AgentDef(a_width::Int64 = 1, d_width::Int64 = 1)
+    if a_width > 1 || d_width > 1
     end
-    a_w_half = trunc(Int, (a_width - 1)/2)
-    d_w_half = trunc(Int, (d_width - 1)/2)
-    A_lst = generate_idx_lst(-a_w_half, a_w_half, -a_w_half, a_w_half)
-    D_lst = generate_idx_lst(-d_w_half, d_w_half, -d_w_half, d_w_half)
+    A_lst = remove_elem_from_lst(diamond(a_width), [0, 0])
+    D_lst = diamond(d_width)
     # delegate constructor
     AgentDef(A_lst, D_lst)
   end
+end
+
+function diamond(n)
+  n == 0 && return [[0, 0]]
+  n == 1 && return [[0, 0], [1, 0], [0, 1], [-1, 0], [0, -1]]
+  error("under construction")
 end
 
 function get_action_lst(idx_here, adef::AgentDef, map)
