@@ -12,7 +12,8 @@ struct AgentDef
   end
 
   function AgentDef(a_width::Int64 = 1, d_width::Int64 = 1)
-    if a_width > 1 || d_width > 1
+    if d_width == 0
+      @warn "if you use d_width = 0 in mc learning, the result may not make sense"  
     end
     A_lst = remove_elem_from_lst(diamond(a_width), [0, 0])
     D_lst = diamond(d_width)
