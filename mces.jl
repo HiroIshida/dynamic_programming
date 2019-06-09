@@ -101,14 +101,13 @@ function check_policy(mc, state, action_new)
 end
 
 function mc_trial(mc::MonteCarlo)
-  state_lst = generate_valid_idx(mc.map)
-  N = mc.map.N
-  for i in 1:N*N*100
-    state0 = state_lst[rand(1:length(state_lst))]
-    action_lst = get_action_lst(state0, mc.adef, mc.map)
-    action0 = action_lst[rand(1:length(action_lst))]
-    single_episode(mc, state0, action0)
-    #println(mc.Q_ht[([3, 3], [0, 0])])
+  isVisited_ht = copy(mc.isVisited_ht) # all element was set to false
+  for n_loop in 1:10
+    for state in generate_valid_idx(mc.map)
+      for action in get_action_lst(state, mc.adef, mc.map)
+        single_episode(mc, state, action)
+      end
+    end
   end
 end
 
