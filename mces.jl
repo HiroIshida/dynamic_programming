@@ -16,7 +16,7 @@ mutable struct MonteCarlo
   t_max_horizon::Int64
 
   function MonteCarlo(map::Map2d, adef::AgentDef)
-    t_max_horizon = 100
+    t_max_horizon = 30
 
     Q_hashtable_lst = []
     Returns_hashtable_lst = []
@@ -58,13 +58,18 @@ function single_episode(mc::MonteCarlo, state0::Idx, action0::Idx)
     state_next = state .+ action .+ disturbance
 
     if ~isVisited_ht[(state, action)]
-      addcost = get_addcost(map, state)
+      addcost = get_addcost(map, state_next)
       dist = norm(state .- state_next)
-      g = mc.Q_ht[(state, action)] + dist + addcost
+      action_next = mc.policy_ht[state_next]
+      g = mc.Q_ht[(state_next, action_next)] + dist + addcost
+      
       push!(mc.Returns_ht[(state, action)], g)
       Returns = mc.Returns_ht[(state, action)]
       mc.Q_ht[(state, action)] = mean(Returns)
       isVisited_ht[(state, action)] = true
+      if state == [2, 2] && action == [-1, 0]
+        #println(g)
+      end
     end
     state = state_next
     action = mc.policy_ht[state]
@@ -98,7 +103,7 @@ end
 function mc_trial(mc::MonteCarlo)
   state_lst = generate_valid_idx(mc.map)
   N = mc.map.N
-  for i in 1:N*N*10
+  for i in 1:N*N*100
     state0 = state_lst[rand(1:length(state_lst))]
     action_lst = get_action_lst(state0, mc.adef, mc.map)
     action0 = action_lst[rand(1:length(action_lst))]
@@ -110,9 +115,9 @@ end
 
 N = 10
 idx_collision_obj_lst = [[4, 4], [4, 5], [4, 6], [5, 6]]
-adef = AgentDef(1, 0)
+adef = AgentDef(1, 1)
 map = Map2d(N, [0, 0], [10, 10])
-#add_rect_object!(map, [3, -1], [4, 8])
+add_rect_object!(map, [3, -1], [4, 8])
 mc = MonteCarlo(map, adef)
 @time mc_trial(mc)
 cost_ht = make_cost_field(map, adef, mc.policy_ht)
