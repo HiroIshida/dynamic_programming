@@ -4,7 +4,7 @@ include("utils.jl")
 
 using LinearAlgebra
 
-function make_cost_field(map::Map2d, adef::AgentDef, policy_ht = nothing)
+function make_cost_field(map::Map2d, adef::AgentDef, policy_ht = nothing; N_itr = 100)
   usingPolicy = (policy_ht != nothing)
   # init data
   s_lst = generate_idx_lst(1, map.N, 1, map.N)
@@ -13,7 +13,7 @@ function make_cost_field(map::Map2d, adef::AgentDef, policy_ht = nothing)
   cost_ht = Dict(ht_pair_lst)
   s_valid_lst = generate_valid_idx(map::Map2d)
 
-  for t in 1:100
+  for t in 1:N_itr
     cost_ht_new = copy(cost_ht)
     for s in s_valid_lst
       if usingPolicy
